@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: prefect-flow-job  # Append a random string for uniqueness
+  name: {{ include "prefect.fullname" . }}-job  # Append a random string for uniqueness
   namespace: {{ .Values.namespace }}  # Namespace set from values.yaml
   annotations:
     argocd.argoproj.io/hook: PostSync

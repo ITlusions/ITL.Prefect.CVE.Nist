@@ -1,5 +1,5 @@
 namespace: prefect-nist-cve  # Namespace for the job
-
+nameOverride: ''
 image:
   repository: "docker.io/nweistra"  # Docker image repository
   name: itlprefectcveflow  # Image name

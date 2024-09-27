@@ -1,5 +1,5 @@
 apiVersion: v2
-name: itl-perfect-helloflow
-description: First Prefect Flow
+name: itl-perfect-nist-cve-importer
+description: NiST CVE importer
 version: 0.1.0
 appVersion: "1.0"
