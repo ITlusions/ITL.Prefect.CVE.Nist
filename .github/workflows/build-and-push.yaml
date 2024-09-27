@@ -38,10 +38,10 @@ jobs:
 
       - name: Build Docker Image
         run: |
-          docker build -t nweistra/itlprefecthelloflow:1.0.0 .
-          docker tag nweistra/itlprefecthelloflow:1.0.0 nweistra/itlprefecthelloflow:latest
+          docker build -t nweistra/itlprefectcveflow:1.0.0 .
+          docker tag nweistra/itlprefectcveflow:1.0.0 nweistra/itlprefectcveflow:latest
 
       - name: Push Docker Image
         run: |
-          docker push nweistra/itlprefecthelloflow:1.0.0
-          docker push nweistra/itlprefecthelloflow:latest
+          docker push nweistra/itlprefectcveflow:1.0.0
+          docker push nweistra/itlprefectcveflow:latest
