@@ -2,7 +2,7 @@ namespace: prefect-cveflow  # Namespace for the job
 
 image:
   repository: "docker.io/nweistra"  # Docker image repository
-  name: itlprefeccveflow  # Image name
+  name: itlprefectcveflow  # Image name
   tag: latest
 
 prefect:
