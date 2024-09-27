@@ -1,4 +1,4 @@
-namespace: prefect-cveflow  # Namespace for the job
+namespace: prefect-nist-cve  # Namespace for the job
 
 image:
   repository: "docker.io/nweistra"  # Docker image repository
