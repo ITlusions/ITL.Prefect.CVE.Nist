@@ -1,0 +1,4 @@
+requests
+prefect
+python-dotenv
+pydantic

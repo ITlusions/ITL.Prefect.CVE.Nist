@@ -1,0 +1,10 @@
+namespace: prefect-cveflow  # Namespace for the job
+
+image:
+  repository: "docker.io/nweistra"  # Docker image repository
+  name: itlprefeccveflow  # Image name
+  tag: latest
+
+prefect:
+  api:
+    url: http://prefect-server.prefect-server.svc.cluster.local:4200/api  # Prefect API URL

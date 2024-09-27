@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prefect-cveimporter-config
+  namespace: {{ .Values.namespace }}  # Use the specified namespace from values.yaml
+data:
+  modificationTimestamp: "{{ now }}"

@@ -1,0 +1,5 @@
+apiVersion: v2
+name: itl-perfect-helloflow
+description: First Prefect Flow
+version: 0.1.0
+appVersion: "1.0"

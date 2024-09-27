@@ -1,0 +1,47 @@
+name: Build and Push Docker Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'information'
+        type: choice
+        options:
+          - information
+          - debug
+          - warning
+          - critical
+      tags:
+        description: 'Purpose of Run This Workflow?'
+        required: true
+        type: string
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}  # Docker Hub username stored in Secrets
+          password: ${{ secrets.DOCKER_PASSWORD }}  # Docker Hub password stored in Secrets
+
+      - name: Build Docker Image
+        run: |
+          docker build -t nweistra/itlprefecthelloflow:1.0.0 .
+          docker tag nweistra/itlprefecthelloflow:1.0.0 nweistra/itlprefecthelloflow:latest
+
+      - name: Push Docker Image
+        run: |
+          docker push nweistra/itlprefecthelloflow:1.0.0
+          docker push nweistra/itlprefecthelloflow:latest

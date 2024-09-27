@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: prefect-flow-job  # Append a random string for uniqueness
+  namespace: {{ .Values.namespace }}  # Namespace set from values.yaml
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+spec:
+  ttlSecondsAfterFinished: 30
+  template:
+    spec:
+      containers:
+        - name: prefect-flow-container
+          image: "{{ .Values.image.repository }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"  # Use specified Docker image
+          env:
+            - name: PREFECT_API_URL
+              value: {{ .Values.prefect.api.url }}  # Prefect API URL from values
+          command: ["python", "/opt/prefect/cveimporter/main.py"]
+          resources:
+            limits:  # Static resource limits
+              memory: "256Mi"
+              cpu: "500m"
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+      restartPolicy: Never
