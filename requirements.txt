@@ -1,4 +1,4 @@
 requests
 prefect
 python-dotenv
-pydantic
+pydantic-settings
