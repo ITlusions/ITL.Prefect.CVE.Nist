@@ -10,11 +10,11 @@ def update_cve_data_flow(store_in_db: bool = False):
     current_time = datetime.now().isoformat()
     
     start_index = 0
-    results_per_page = 100
+    results_per_page = 50
     total_results = 10000  # Example total results
     
     # Construct the API URL with modification dates
-    api_url = f"https://services.nvd.nist.gov/rest/json/cves/1.0?modStartDate={last_update_time}&modEndDate={current_time}"
+    api_url = f"{settings.nvd_api_url}?lastModStartDate={last_update_time}&lastModEndDate={current_time}"
     
     # Determine the rate limit sleep time based on API key presence
     if settings.nvd_api_key:
@@ -24,7 +24,7 @@ def update_cve_data_flow(store_in_db: bool = False):
 
     # Loop to fetch and process paginated CVE data
     while start_index < total_results:
-        cve_data = fetch_cve_data(api_url, start_index, results_per_page).result()
+        cve_data = fetch_cve_data(api_url, start_index, results_per_page)
         process_cve_data(cve_data, store_in_db)
         
         start_index += results_per_page
