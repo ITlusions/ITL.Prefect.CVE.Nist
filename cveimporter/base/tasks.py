@@ -33,8 +33,8 @@ def process_cve_data(cve_data, store_in_db: bool = False):
         
         # Optional storage in Cassandra
         if store_in_db:
-            cluster = Cluster(['127.0.0.1'])  # Use appropriate IP for your Cassandra instance
-            session = cluster.connect('cve_keyspace')  # Replace with your keyspace
+            cluster = Cluster(['127.0.0.1']) 
+            session = cluster.connect('cve_keyspace')
             
             insert_query = """
             INSERT INTO cve_data (cve_id, description)

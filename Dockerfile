@@ -4,6 +4,7 @@ FROM python:3.11-slim
 # Set environment variables for Prefect API (update according to your Prefect setup)
 ENV PREFECT_API_URL=http://prefect-server.prefect-server.svc.cluster.local:4200/api
 ENV NVD_API_URL=https://services.nvd.nist.gov/rest/json/cves/2.0
+ENV NVD_API_KEY=
 
 # Install system dependencies (if needed)
 RUN apt-get update && apt-get install -y \
