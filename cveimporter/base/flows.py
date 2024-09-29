@@ -1,6 +1,7 @@
 from prefect import flow
 from datetime import datetime
 from base.tasks import process_cve_data, fetch_cve_data, get_last_update_time
+from base.config import settings
 import time
 
 @flow
@@ -15,11 +16,18 @@ def update_cve_data_flow(store_in_db: bool = False):
     # Construct the API URL with modification dates
     api_url = f"https://services.nvd.nist.gov/rest/json/cves/1.0?modStartDate={last_update_time}&modEndDate={current_time}"
     
+    # Determine the rate limit sleep time based on API key presence
+    if settings.nvd_api_key:
+        rate_limit_sleep_time = 0.6  # Sleep time for 50 requests in 30 seconds
+    else:
+        rate_limit_sleep_time = 6.0  # Sleep time for 5 requests in 30 seconds
+
     # Loop to fetch and process paginated CVE data
     while start_index < total_results:
         cve_data = fetch_cve_data(api_url, start_index, results_per_page).result()
         process_cve_data(cve_data, store_in_db)
+        
         start_index += results_per_page
         
-        # Sleep between requests to avoid rate limiting
-        time.sleep(6)
+        # Sleep based on the determined rate limit to avoid hitting the limit
+        time.sleep(rate_limit_sleep_time)  # Adjust based on the API's rate limit guidelines

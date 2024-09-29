@@ -5,7 +5,14 @@ from base.config import settings
 # Fetch CVE data from NVD API
 @task
 def fetch_cve_data(api_url, start_index, results_per_page):
-    response = requests.get(f"{api_url}&startIndex={start_index}&resultsPerPage={results_per_page}")
+    headers = {}
+    
+    # Check if the API key is provided and add it to the headers
+    if settings.nvd_api_key:  
+        headers['apiKey'] = settings.nvd_api_key  
+
+    # Make the API request with headers
+    response = requests.get(f"{api_url}&startIndex={start_index}&resultsPerPage={results_per_page}", headers=headers)
     
     # Check if the request was successful
     if response.status_code == 200:
