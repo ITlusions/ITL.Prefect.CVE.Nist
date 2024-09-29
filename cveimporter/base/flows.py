@@ -6,7 +6,7 @@ import time
 @flow
 def update_cve_data_flow(store_in_db: bool = False):
     last_update_time = get_last_update_time()  # Retrieve last update timestamp
-    current_time = datetime.datetime.now().isoformat()
+    current_time = datetime.now().isoformat()
     
     start_index = 0
     results_per_page = 100
