@@ -1,0 +1,22 @@
+name: itl-nist-cve-importer
+prefect-version: 3.8.8
+
+build: null
+push: null
+
+pull:
+  - prefect.deployments.steps.set_working_directory:
+      directory: /opt/prefect/cveimporter
+
+deployments:
+  - name: nist-cve-import
+    entrypoint: base/flows.py:update_cve_data_flow
+    work_pool:
+      name: itl-amalia
+      job_variables:
+        image: nweistra/itlprefectcveflow:latest
+        image_pull_policy: IfNotPresent
+        namespace: prefect-demo
+    schedules:
+      - cron: "0 2 * * *"
+        timezone: UTC

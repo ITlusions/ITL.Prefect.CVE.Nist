@@ -1,13 +1,12 @@
-from pydantic_settings import BaseSettings
-from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 class Settings(BaseSettings):
-    nvd_api_url: str = Field(..., env="NVD_API_URL")
-    prefect_api_url: str = Field(..., env="PREFECT_API_URL")
-    nvd_api_key: str = Field(None, env="NVD_API_KEY")
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    class Config:
-        env_file = ".env"
+    nvd_api_url: str
+    prefect_api_url: str
+    nvd_api_key: str | None = None
 
-# Instantiate the settings
+
 settings = Settings()

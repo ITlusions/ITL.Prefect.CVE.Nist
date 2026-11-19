@@ -1,33 +1,50 @@
-from prefect import flow
-from datetime import datetime
-from base.tasks import process_cve_data, fetch_cve_data, get_last_update_time
-from base.config import settings
 import time
+from datetime import datetime, timedelta, timezone
 
-@flow
-def update_cve_data_flow(store_in_db: bool = False):
-    last_update_time = get_last_update_time()  # Retrieve last update timestamp
-    current_time = datetime.now().isoformat()
-    
-    start_index = 0
-    results_per_page = 50
-    total_results = 10000  # Example total results
-    
-    # Construct the API URL with modification dates
-    api_url = f"{settings.nvd_api_url}?lastModStartDate={last_update_time}&lastModEndDate={current_time}"
-    
-    # Determine the rate limit sleep time based on API key presence
-    if settings.nvd_api_key:
-        rate_limit_sleep_time = 0.6  # Sleep time for 50 requests in 30 seconds
-    else:
-        rate_limit_sleep_time = 6.0  # Sleep time for 5 requests in 30 seconds
+from prefect import flow
+from prefect.variables import Variable
 
-    # Loop to fetch and process paginated CVE data
-    while start_index < total_results:
-        cve_data = fetch_cve_data(api_url, start_index, results_per_page)
-        process_cve_data(cve_data, store_in_db)
-        
-        start_index += results_per_page
-        
-        # Sleep based on the determined rate limit to avoid hitting the limit
-        time.sleep(rate_limit_sleep_time)  # Adjust based on the API's rate limit guidelines
+from base.config import settings
+from base.tasks import fetch_cve_data, process_cve_data
+
+WATERMARK_VARIABLE = "nist_cve_last_update"
+DEFAULT_START = datetime(2024, 9, 22, tzinfo=timezone.utc)
+WINDOW = timedelta(days=90)  # NVD rejects modification windows longer than 120 days
+PAGE_SIZE = 2000  # NVD maximum resultsPerPage
+
+
+def _nvd_date(moment: datetime) -> str:
+    return moment.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000+00:00")
+
+
+@flow(name="update-cve-data-flow")
+def update_cve_data_flow() -> int:
+    now = datetime.now(timezone.utc)
+    last_update = datetime.fromisoformat(
+        Variable.get(WATERMARK_VARIABLE, default=DEFAULT_START.isoformat())
+    )
+    delay = 0.6 if settings.nvd_api_key else 6.0
+    total = 0
+    window_start = last_update
+
+    while window_start < now:
+        window_end = min(window_start + WINDOW, now)
+        start_index = 0
+        while True:
+            page = fetch_cve_data({
+                "lastModStartDate": _nvd_date(window_start),
+                "lastModEndDate": _nvd_date(window_end),
+                "startIndex": start_index,
+                "resultsPerPage": PAGE_SIZE,
+            })
+            total += process_cve_data(page)
+            start_index += PAGE_SIZE
+            if start_index >= page.get("totalResults", 0):
+                break
+            time.sleep(delay)
+        Variable.set(WATERMARK_VARIABLE, window_end.isoformat(), overwrite=True)
+        window_start = window_end
+        if window_start < now:
+            time.sleep(delay)
+
+    return total

@@ -2,21 +2,6 @@ name: Build and Push Docker Image
 
 on:
   workflow_dispatch:
-    inputs:
-      logLevel:
-        description: 'Log level'
-        required: true
-        default: 'information'
-        type: choice
-        options:
-          - information
-          - debug
-          - warning
-          - critical
-      tags:
-        description: 'Purpose of Run This Workflow?'
-        required: true
-        type: string
   push:
     branches: ["main"]
   pull_request:
@@ -25,23 +10,25 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Log in to Docker Hub
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}  # Docker Hub username stored in Secrets
-          password: ${{ secrets.DOCKER_PASSWORD }}  # Docker Hub password stored in Secrets
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build Docker Image
-        run: |
-          docker build -t nweistra/itlprefectcveflow:1.0.0 .
-          docker tag nweistra/itlprefectcveflow:1.0.0 nweistra/itlprefectcveflow:latest
-
-      - name: Push Docker Image
-        run: |
-          docker push nweistra/itlprefectcveflow:1.0.0
-          docker push nweistra/itlprefectcveflow:latest
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: |
+            nweistra/itlprefectcveflow:${{ github.sha }}
+            nweistra/itlprefectcveflow:latest
